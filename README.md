@@ -13,7 +13,11 @@ DeepSeek Harness 生图插件：在设置里保存多个商汤生图账号，Age
 
 ## 安装
 
-在 DSH Web / Desktop 中打开 **设置 → 插件**，把本地目录 `call-image-model` 作为插件添加。
+```sh
+git clone https://github.com/HuoGu-Hub/call-image-model.git
+```
+
+在 DSH Web / Desktop 中打开 **设置 → 插件**，把克隆下来的 `call-image-model` 目录作为插件添加。
 
 装好后刷新页面，侧栏 **设置** 里会出现「图片生成」，Agent 工具列表里会出现 `generate_image`。
 
