@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>call-image-model：原理与使用</title>
+<title>dsh-sense-img：原理与使用</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -75,7 +75,7 @@
 </head>
 <body>
 <main>
-  <h1>call-image-model：原理与使用</h1>
+  <h1>dsh-sense-img：原理与使用</h1>
   <p>这是一个 DeepSeek Harness 插件，把商汤的生图接口接成 Agent 工具。设置里保存多个账号，Agent 调用 <code>generate_image</code> 时使用当前账号，生成结果保存到工作目录并显示在对话里。</p>
 
   <h2>插件由哪几部分组成</h2>
@@ -83,7 +83,7 @@
     <tr><th>部分</th><th>文件</th><th>职责</th></tr>
     <tr><td>Host 半</td><td><code>index.js</code></td><td>声明配置结构，注册 <code>generate_image</code> 工具，解析账号与密钥，发请求、下载图片、落盘并返回结果。</td></tr>
     <tr><td>浏览器半</td><td><code>client.js</code></td><td>在「设置 → 图片生成」渲染账号列表与编辑表单，读写配置、管理密钥。</td></tr>
-    <tr><td>Bundle patch</td><td><code>cordis.patch.yml</code></td><td>向 profile 插入一行插件记录，行 id 为 <code>sensenova-image</code>。</td></tr>
+    <tr><td>Bundle patch</td><td><code>cordis.patch.yml</code></td><td>向 profile 插入一行插件记录，行 id 为 <code>dsh-sense-img</code>。</td></tr>
     <tr><td>显示资源</td><td><code>locale/</code>、<code>icon.svg</code></td><td>插件标题、描述与图标。</td></tr>
   </table>
   <p>插件没有 npm 运行时依赖，也不需要构建。Host 半用运行中的 DSH 自带的 <code>@deepseek-ai/schemastery</code> 构造 Config，浏览器半只依赖 <code>react</code>。</p>
@@ -111,8 +111,8 @@
 
   <h2>安装与首次使用</h2>
   <ol>
-    <li>克隆仓库：<code>git clone https://github.com/HuoGu-Hub/call-image-model.git</code>。</li>
-    <li>打开 DSH 的 <strong>设置 → 插件</strong>，把 <code>call-image-model</code> 目录作为插件添加。</li>
+    <li>克隆仓库：<code>git clone https://github.com/HuoGu-Hub/dsh-sense-img.git</code>。</li>
+    <li>打开 DSH 的 <strong>设置 → 插件</strong>，把 <code>dsh-sense-img</code> 目录作为插件添加。</li>
     <li>刷新一次页面。侧栏「设置」里出现「图片生成」，Agent 工具列表里出现 <code>generate_image</code>。</li>
     <li>打开 <strong>设置 → 图片生成</strong>。默认账号已经指向 <code>SENSENOVA_API_KEY</code>，如果你之前配置过这个环境变量或凭证，会显示「密钥已设置」。</li>
     <li>直接对 Agent 说「画一只橘猫」，或在对话里让它调用 <code>generate_image</code>。</li>
@@ -141,7 +141,7 @@
 
   <h2>结果与限制</h2>
   <ul>
-    <li>图片保存为 <code>&lt;会话工作目录&gt;/generated-images/sensenova-image-&lt;时间&gt;-&lt;随机&gt;.png</code>。</li>
+    <li>图片保存为 <code>&lt;会话工作目录&gt;/generated-images/dsh-sense-img-&lt;时间&gt;-&lt;随机&gt;.png</code>。</li>
     <li>如果当前模型不声明图片输入，工具只返回保存路径，不附带图片块；换成支持图片的模型就能直接看图。</li>
     <li>接口只支持文本生图：请求体固定为 <code>model</code>、<code>prompt</code>、<code>size</code>，不支持参考图、批量生成、局部编辑。</li>
     <li>水印由服务商决定，插件不做处理。</li>
@@ -161,7 +161,7 @@
   <h2>维护</h2>
   <p>插件是无构建的原生模块：改完 <code>index.js</code> 或 <code>client.js</code> 后，Host 侧在下次 profile 重组时加载新模块，浏览器侧刷新页面即可。配置文件不含密钥；如果怀疑密钥泄漏，在凭证库里删除对应引用并重新添加即可，不需要改代码。</p>
 
-  <footer>call-image-model · DeepSeek Harness 生图插件</footer>
+  <footer>dsh-sense-img · DeepSeek Harness 生图插件</footer>
 </main>
 </body>
 </html>

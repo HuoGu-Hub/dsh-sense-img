@@ -1,4 +1,4 @@
-# call-image-model
+# dsh-sense-img
 
 DeepSeek Harness 生图插件：在设置里保存多个商汤生图账号，Agent 通过 `generate_image` 工具用当前账号调用 `sensenova-u1.5-lite`。
 
@@ -16,10 +16,10 @@ DeepSeek Harness 生图插件：在设置里保存多个商汤生图账号，Age
 ## 安装
 
 ```sh
-git clone https://github.com/HuoGu-Hub/call-image-model.git
+git clone https://github.com/HuoGu-Hub/dsh-sense-img.git
 ```
 
-在 DSH Web / Desktop 中打开 **设置 → 插件**，把克隆下来的 `call-image-model` 目录作为插件添加。
+在 DSH Web / Desktop 中打开 **设置 → 插件**，把克隆下来的 `dsh-sense-img` 目录作为插件添加。
 
 装好后刷新页面，侧栏 **设置** 里会出现「图片生成」，Agent 工具列表里会出现 `generate_image`。
 
@@ -72,7 +72,7 @@ git clone https://github.com/HuoGu-Hub/call-image-model.git
 ## 目录
 
 ```
-call-image-model/
+dsh-sense-img/
 ├─ index.js           Host 半：Config + generate_image 工具
 ├─ client.js          浏览器半：设置页（设置 → 图片生成）
 ├─ cordis.patch.yml   Bundle patch

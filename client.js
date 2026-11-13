@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-  id: '@local/sensenova-image',
+  id: 'dsh-sense-img',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
 
-    const ENTRY_ID = 'sensenova-image';
+    const ENTRY_ID = 'dsh-sense-img';
     const NS = 'settings.imageGeneration';
     const DEFAULT_BASE_URL = 'https://token.sensenova.cn/v1/images/generations';
     const DEFAULT_MODEL = 'sensenova-u1.5-lite';
@@ -719,7 +719,7 @@ window.__ModuleLoader__.load({
      * @param {any} ctx client plugin context.
      */
     function apply(ctx) {
-      ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'sensenova-image: dictionaries');
+      ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-sense-img: dictionaries');
       const t = ctx.locale.bind(NS);
       host = { ctx, form: ctx.configForms.get(ENTRY_ID) };
       ctx.effect(() => ctx.configForms.whileServed([ENTRY_ID], () => ctx.slots.inject('settings.section', () => ctx.slots.register({
@@ -728,8 +728,8 @@ window.__ModuleLoader__.load({
         order: 55,
         label: () => t('title'),
         locale: NS,
-      }, Page))), 'sensenova-image: settings page');
-      ctx.effect(() => () => { host = null; }, 'sensenova-image: page state');
+      }, Page))), 'dsh-sense-img: settings page');
+      ctx.effect(() => () => { host = null; }, 'dsh-sense-img: page state');
     }
 
     return { inject, apply };

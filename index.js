@@ -8,7 +8,7 @@
  *
  * The Config schema is built with the Harness installation's own schemastery,
  * resolved from `DSH_INSTALL_DIR`, so this local bundle needs no dependencies.
- * @module @local/sensenova-image
+ * @module dsh-sense-img
  */
 
 import { createRequire } from 'node:module'
@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 /** Entry id of this plugin; it is also the settings namespace. */
-export const ENTRY_ID = 'sensenova-image'
+export const ENTRY_ID = 'dsh-sense-img'
 
 const DEFAULT_BASE_URL = 'https://token.sensenova.cn/v1/images/generations'
 const DEFAULT_MODEL = 'sensenova-u1.5-lite'
@@ -348,7 +348,7 @@ function outputName(extension) {
   const pad = value => String(value).padStart(2, '0')
   const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
   const salt = Math.random().toString(36).slice(2, 6)
-  return `sensenova-image-${stamp}-${salt}.${extension}`
+  return `dsh-sense-img-${stamp}-${salt}.${extension}`
 }
 
 /**
@@ -375,7 +375,7 @@ const PROMPT_ECHO_LIMIT = 300
  */
 export function apply(ctx, config) {
   if (schemaLibrary.error !== undefined) {
-    ctx.logger?.warn?.('sensenova-image: the settings page stays unavailable because %s', schemaLibrary.error)
+    ctx.logger?.warn?.('dsh-sense-img: the settings page stays unavailable because %s', schemaLibrary.error)
   }
   const tool = {
     name: 'generate_image',
@@ -502,7 +502,7 @@ export function apply(ctx, config) {
             width = stored.width ?? width
             height = stored.height ?? height
           } catch (error) {
-            ctx.logger?.warn?.('sensenova-image: durable image storage refused the result: %s', error?.message ?? String(error))
+            ctx.logger?.warn?.('dsh-sense-img: durable image storage refused the result: %s', error?.message ?? String(error))
           }
         }
 
@@ -518,7 +518,7 @@ export function apply(ctx, config) {
           savedPath = join(directory, outputName(extensionFor(mediaType)))
           await writeFile(savedPath, data)
         } catch (error) {
-          ctx.logger?.warn?.('sensenova-image: could not save the image to the workspace: %s', error?.message ?? String(error))
+          ctx.logger?.warn?.('dsh-sense-img: could not save the image to the workspace: %s', error?.message ?? String(error))
         }
 
         const acceptsImage = attachmentId !== undefined && await routeAcceptsImage(ctx, exec)
@@ -546,6 +546,6 @@ export function apply(ctx, config) {
   // A child fiber keeps the entry active (and its settings form served) even
   // before the tools service is mounted, and drops the tool with the service.
   ctx.inject(['tools'], child => {
-    child.effect(() => child.tools.register(tool), 'sensenova-image: generate_image tool')
+    child.effect(() => child.tools.register(tool), 'dsh-sense-img: generate_image tool')
   })
 }

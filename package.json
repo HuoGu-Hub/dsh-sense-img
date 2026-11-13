@@ -1,5 +1,5 @@
 {
-  "name": "@local/sensenova-image",
+  "name": "dsh-sense-img",
   "version": "1.0.0",
   "private": true,
   "description": "DeepSeek Harness plugin: multi-account Sensenova image generation tool and settings page.",
@@ -22,11 +22,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HuoGu-Hub/call-image-model.git"
+    "url": "git+https://github.com/HuoGu-Hub/dsh-sense-img.git"
   },
-  "homepage": "https://github.com/HuoGu-Hub/call-image-model",
+  "homepage": "https://github.com/HuoGu-Hub/dsh-sense-img",
   "bugs": {
-    "url": "https://github.com/HuoGu-Hub/call-image-model/issues"
+    "url": "https://github.com/HuoGu-Hub/dsh-sense-img/issues"
   },
   "keywords": [
     "deepseek-harness",
