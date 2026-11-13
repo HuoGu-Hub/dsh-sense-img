@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>call-image-model：原理与使用</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfa;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --line: #d8dee4;
+    --card: #ffffff;
+    --code: #f1f4f8;
+    --accent: #2f6bd6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a;
+      --fg: #e6edf3;
+      --muted: #9aa4af;
+      --line: #2c333a;
+      --card: #1a1f24;
+      --code: #20262c;
+      --accent: #7ba7f0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 15px/1.75 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 840px; margin: 0 auto; padding: 52px 24px 80px; }
+  h1 { margin: 0 0 12px; font-size: 28px; line-height: 1.3; }
+  h2 { margin: 42px 0 14px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 19px; line-height: 1.4; }
+  h3 { margin: 24px 0 8px; font-size: 15px; }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--code);
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: .92em;
+  }
+  pre {
+    margin: 14px 0;
+    padding: 12px 14px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--code);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  pre code { padding: 0; background: none; font-size: inherit; }
+  table { width: 100%; margin: 14px 0; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .note {
+    margin: 14px 0;
+    padding: 10px 14px;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    background: var(--card);
+    color: var(--muted);
+  }
+  a { color: var(--accent); }
+  footer { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>call-image-model：原理与使用</h1>
+  <p>这是一个 DeepSeek Harness 插件，把商汤的生图接口接成 Agent 工具。设置里保存多个账号，Agent 调用 <code>generate_image</code> 时使用当前账号，生成结果保存到工作目录并显示在对话里。</p>
+
+  <h2>插件由哪几部分组成</h2>
+  <table>
+    <tr><th>部分</th><th>文件</th><th>职责</th></tr>
+    <tr><td>Host 半</td><td><code>index.js</code></td><td>声明配置结构，注册 <code>generate_image</code> 工具，解析账号与密钥，发请求、下载图片、落盘并返回结果。</td></tr>
+    <tr><td>浏览器半</td><td><code>client.js</code></td><td>在「设置 → 图片生成」渲染账号列表与编辑表单，读写配置、管理密钥。</td></tr>
+    <tr><td>Bundle patch</td><td><code>cordis.patch.yml</code></td><td>向 profile 插入一行插件记录，行 id 为 <code>sensenova-image</code>。</td></tr>
+    <tr><td>显示资源</td><td><code>locale/</code>、<code>icon.svg</code></td><td>插件标题、描述与图标。</td></tr>
+  </table>
+  <p>插件没有 npm 运行时依赖，也不需要构建。Host 半用运行中的 DSH 自带的 <code>@deepseek-ai/schemastery</code> 构造 Config，浏览器半只依赖 <code>react</code>。</p>
+
+  <h2>一次生图的完整链路</h2>
+  <ol>
+    <li>模型按工具定义调用 <code>generate_image</code>，参数是 <code>prompt</code>，可选 <code>size</code> 和 <code>account</code>。</li>
+    <li>Host 按 <code>account</code> 匹配账号；没传就用 <code>activeProfileId</code>。账号里有请求地址、模型和密钥引用名。</li>
+    <li>通过 DSH 的凭证服务按引用名取出真实 API Key。配置里始终只有引用名，没有密钥值。</li>
+    <li>向账号的请求地址发 <code>POST</code>，请求体 <code>{ model, prompt, size }</code>，请求头 <code>Authorization: Bearer &lt;API Key&gt;</code>。</li>
+    <li>解析响应里的图片地址或 base64，必要时下载图片，并校验确实是 PNG/JPEG/WebP/GIF。</li>
+    <li>把图片存进 DSH 附件库，同时写到会话工作目录的 <code>generated-images/</code>。</li>
+    <li>返回文字结果和保存路径；当前模型支持图片输入时，再附带一个图片块，对话里就能直接看到图。</li>
+  </ol>
+  <div class="note">请求超时和默认尺寸都能在设置页改，保存后立即生效，不需要重启。工具每次被调用时都会重新读取当前配置和密钥。</div>
+
+  <h2>配置与密钥分别存在哪</h2>
+  <table>
+    <tr><th>数据</th><th>位置</th><th>说明</th></tr>
+    <tr><td>账号列表、当前账号、默认尺寸、超时</td><td>profile 的 Cordis 配置层</td><td>设置页写入，字段标记为热更新，下一次工具调用生效。</td></tr>
+    <tr><td>API Key 值</td><td>DSH 凭证存储</td><td>账号里的 <code>apiKeyEnv</code> 只是引用名，例如 <code>SENSENOVA_API_KEY</code>。</td></tr>
+    <tr><td>生成图片</td><td>附件库与工作目录</td><td>附件库用于对话展示，文件用于本地使用与留档。</td></tr>
+  </table>
+  <p>所以把仓库公开、把配置复制给别人，都不会带出密钥。</p>
+
+  <h2>安装与首次使用</h2>
+  <ol>
+    <li>克隆仓库：<code>git clone https://github.com/HuoGu-Hub/call-image-model.git</code>。</li>
+    <li>打开 DSH 的 <strong>设置 → 插件</strong>，把 <code>call-image-model</code> 目录作为插件添加。</li>
+    <li>刷新一次页面。侧栏「设置」里出现「图片生成」，Agent 工具列表里出现 <code>generate_image</code>。</li>
+    <li>打开 <strong>设置 → 图片生成</strong>。默认账号已经指向 <code>SENSENOVA_API_KEY</code>，如果你之前配置过这个环境变量或凭证，会显示「密钥已设置」。</li>
+    <li>直接对 Agent 说「画一只橘猫」，或在对话里让它调用 <code>generate_image</code>。</li>
+  </ol>
+
+  <h2>多账号与额度切换</h2>
+  <ul>
+    <li>点「添加账号」，填写名称、模型、请求地址，粘贴该账号的 API Key，保存。</li>
+    <li>每个账号有自己的密钥引用，互不影响；点「切换至此」把某个账号设为当前账号。</li>
+    <li>工具也可以临时指定账号：传 <code>account</code>，值为账号 id 或名称。<code>account</code> 不传时用当前账号。</li>
+    <li>删除账号时会先删除配置，再清理对应密钥；如果密钥清理失败，页面会提示它可能仍留在凭证库中。</li>
+  </ul>
+
+  <h2>工具参数</h2>
+  <table>
+    <tr><th>参数</th><th>必填</th><th>说明</th></tr>
+    <tr><td><code>prompt</code></td><td>是</td><td>画面描述，主体、风格、构图、光线都可以写进去。</td></tr>
+    <tr><td><code>size</code></td><td>否</td><td>形如 <code>1024x1024</code>；不传时用设置页的默认尺寸。</td></tr>
+    <tr><td><code>account</code></td><td>否</td><td>账号 id 或名称；不传时用当前账号。</td></tr>
+  </table>
+  <p>调用示例：</p>
+  <pre><code>{
+  "prompt": "a red apple on a white table, soft studio lighting",
+  "size": "1024x1024"
+}</code></pre>
+
+  <h2>结果与限制</h2>
+  <ul>
+    <li>图片保存为 <code>&lt;会话工作目录&gt;/generated-images/sensenova-image-&lt;时间&gt;-&lt;随机&gt;.png</code>。</li>
+    <li>如果当前模型不声明图片输入，工具只返回保存路径，不附带图片块；换成支持图片的模型就能直接看图。</li>
+    <li>接口只支持文本生图：请求体固定为 <code>model</code>、<code>prompt</code>、<code>size</code>，不支持参考图、批量生成、局部编辑。</li>
+    <li>水印由服务商决定，插件不做处理。</li>
+  </ul>
+
+  <h2>常见问题</h2>
+  <table>
+    <tr><th>现象</th><th>处理</th></tr>
+    <tr><td>设置里没有「图片生成」</td><td>确认插件已启用，然后刷新页面；Host 半已加载但页面需要刷新才能拿到新的设置页。</td></tr>
+    <tr><td>卡片显示「未设置密钥」</td><td>点「编辑」，把该账号的 API Key 粘进去保存。</td></tr>
+    <tr><td>提示 401 或 403</td><td>密钥错误或已过期，重新填写；也可能是该账号没有这个模型的权限。</td></tr>
+    <tr><td>提示 402 或 429</td><td>额度不足或被限流，点「切换至此」换另一个账号。</td></tr>
+    <tr><td>只有路径，没有图</td><td>当前对话模型不支持图片输入；图片已经保存，可换支持图片的模型再生成。</td></tr>
+    <tr><td>移动了插件目录后失效</td><td>插件以本地目录链接的方式安装；移动后需要在设置 → 插件里重新添加新路径。</td></tr>
+  </table>
+
+  <h2>维护</h2>
+  <p>插件是无构建的原生模块：改完 <code>index.js</code> 或 <code>client.js</code> 后，Host 侧在下次 profile 重组时加载新模块，浏览器侧刷新页面即可。配置文件不含密钥；如果怀疑密钥泄漏，在凭证库里删除对应引用并重新添加即可，不需要改代码。</p>
+
+  <footer>call-image-model · DeepSeek Harness 生图插件</footer>
+</main>
+</body>
+</html>

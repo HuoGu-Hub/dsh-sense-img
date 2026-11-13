@@ -2,6 +2,8 @@
 
 DeepSeek Harness 生图插件：在设置里保存多个商汤生图账号，Agent 通过 `generate_image` 工具用当前账号调用 `sensenova-u1.5-lite`。
 
+原理与完整使用说明见 [docs/原理与使用.html](docs/原理与使用.html)。
+
 ## 功能
 
 - 设置页「图片生成」：保存多个账号，字段为账号名称、请求地址、模型、API Key。
