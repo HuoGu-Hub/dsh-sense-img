@@ -1,0 +1,49 @@
+{
+  "name": "@local/sensenova-image",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DeepSeek Harness plugin: multi-account Sensenova image generation tool and settings page.",
+  "author": "HuoGu",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "README.md",
+    "icon.svg"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuoGu-Hub/call-image-model.git"
+  },
+  "homepage": "https://github.com/HuoGu-Hub/call-image-model",
+  "bugs": {
+    "url": "https://github.com/HuoGu-Hub/call-image-model/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "image-generation",
+    "sensenova"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  }
+}

@@ -1,0 +1,3 @@
+- insert:
+    - id: sensenova-image
+      name: '@local/sensenova-image'

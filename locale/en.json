@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Image generation",
+    "description": "Generates images from text prompts with a saved Sensenova image account. Add accounts and switch the active one in Settings → Image generation; the agent calls the generate_image tool."
+  }
+}
