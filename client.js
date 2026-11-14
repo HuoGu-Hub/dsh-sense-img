@@ -19,11 +19,15 @@ window.__ModuleLoader__.load({
       keySet: 'API Key set',
       keyMissing: 'No API Key',
       keyUnknown: 'Checking key…',
+      keyStatusUnknown: 'Key status unknown',
       keyStatusFailed: 'The API Key status could not be read.',
       keyStatusRetry: 'Retry',
       use: 'Use this account',
       edit: 'Edit',
       delete: 'Delete',
+      useAccount: 'Use “{name}”',
+      editAccount: 'Edit “{name}”',
+      deleteAccount: 'Delete “{name}”',
       add: 'Add account',
       save: 'Save',
       cancel: 'Cancel',
@@ -78,11 +82,15 @@ window.__ModuleLoader__.load({
       keySet: '密钥已设置',
       keyMissing: '未设置密钥',
       keyUnknown: '正在检查密钥…',
+      keyStatusUnknown: '密钥状态未知',
       keyStatusFailed: '无法读取密钥状态。',
       keyStatusRetry: '重试',
       use: '切换至此',
       edit: '编辑',
       delete: '删除',
+      useAccount: '切换到「{name}」',
+      editAccount: '编辑「{name}」',
+      deleteAccount: '删除「{name}」',
       add: '添加账号',
       save: '保存',
       cancel: '取消',
@@ -129,49 +137,80 @@ window.__ModuleLoader__.load({
       emptyAccounts: '还没有账号。添加一个账号后即可生成图片。',
     };
 
+    /**
+     * Page styles.
+     *
+     * Geometry, type and row anatomy follow the shipped Models settings page
+     * (`settings.models` section): one column capped at 720px, a 16/24 title
+     * over a 14/22 intro, the settings card material for rows (`padding: 12px
+     * 14px`, `radius: xl`, `settings-card-fill`), compact 28px row actions, an
+     * inset module fill for the open editor, and a dashed full-width add row
+     * that reads as the list's last slot rather than a stray button.
+     *
+     * Every colour resolves through a `--dsw-alias-*` token. The richer tokens
+     * this build uses internally (`settings-card-*`, `bg-module-platform`,
+     * `label-tertiary`, `border-l3/l4`, `button-primary-*`,
+     * `interactive-bg-hover*`) each carry a fallback to a token the Client
+     * theme service publishes, so a renamed token degrades instead of
+     * rendering an invisible surface.
+     */
     const STYLE = [
-      '.sg-root{display:flex;flex-direction:column;gap:20px;padding:4px 0 40px;color:var(--dsw-alias-label-primary);font-size:14px;line-height:20px}',
-      '.sg-lead-title{margin:0;font-size:14px;line-height:20px;font-weight:600}',
-      '.sg-lead-desc{margin-top:6px;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:18px;max-width:640px}',
-      '.sg-list{display:flex;flex-direction:column;gap:10px}',
-      '.sg-card{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-layer-1)}',
-      '.sg-card.is-active{border-color:var(--dsw-alias-brand-primary)}',
-      '.sg-card.is-editing,.sg-card.is-confirming{flex-direction:column;align-items:stretch}',
-      '.sg-card-main{min-width:0;display:flex;flex-direction:column;gap:4px}',
-      '.sg-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px}',
-      '.sg-name{font-size:14px;line-height:20px;font-weight:600;overflow-wrap:anywhere}',
-      '.sg-badge{font-size:11px;line-height:16px;padding:0 6px;border-radius:999px;color:var(--dsw-alias-brand-primary);border:0.5px solid var(--dsw-alias-brand-primary)}',
-      '.sg-key{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
-      '.sg-dot{width:6px;height:6px;border-radius:50%;background:var(--dsw-alias-state-idle-primary)}',
-      '.sg-key.is-set .sg-dot{background:var(--dsw-alias-state-success-primary)}',
-      '.sg-key.is-missing .sg-dot{background:var(--dsw-alias-state-warn-primary)}',
-      '.sg-meta{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}',
-      '.sg-actions{display:flex;flex-shrink:0;gap:8px;align-items:center}',
-      '.sg-btn{height:30px;padding:0 12px;border-radius:8px;border:0.5px solid var(--dsw-alias-border-l2);background:transparent;color:var(--dsw-alias-label-primary);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap}',
-      '.sg-btn:hover:not(:disabled){background:var(--dsw-alias-bg-layer-2)}',
-      '.sg-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}',
-      '.sg-btn:disabled{opacity:.45;cursor:default}',
-      '.sg-btn.is-primary{background:var(--dsw-alias-brand-primary);border-color:transparent;color:var(--dsw-alias-label-on-color,#fff)}',
-      '.sg-btn.is-danger{color:var(--dsw-alias-state-error-primary)}',
-      '.sg-editor{display:flex;flex-direction:column;gap:12px}',
-      '.sg-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}',
-      '.sg-field{display:flex;flex-direction:column;gap:6px;min-width:0}',
-      '.sg-field-label{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
-      '.sg-input{height:32px;box-sizing:border-box;width:100%;padding:0 10px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:8px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:13px;font-family:inherit}',
-      '.sg-input:focus{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-1px}',
-      '.sg-input[aria-invalid="true"]{border-color:var(--dsw-alias-state-error-primary)}',
-      '.sg-hint{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
-      '.sg-editor-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}',
-      '.sg-confirm{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:12px;line-height:18px}',
-      '.sg-confirm-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
-      '.sg-confirm-note{color:var(--dsw-alias-label-secondary)}',
-      '.sg-global{display:flex;flex-direction:column;gap:12px;padding-top:16px;border-top:0.5px solid var(--dsw-alias-border-l2)}',
-      '.sg-global-title{margin:0;font-size:14px;line-height:20px;font-weight:600}',
-      '.sg-notice{font-size:12px;line-height:18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}',
+      '.sg-section{display:flex;flex-direction:column;gap:12px;max-width:720px;color:var(--dsw-alias-label-primary);font-size:14px;line-height:22px}',
+      '.sg-title{margin:0;font-size:16px;line-height:24px;font-weight:500}',
+      '.sg-intro{margin:0;font-size:14px;line-height:22px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
+      '.sg-note{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-state-warn-label,var(--dsw-alias-label-secondary))}',
+      '.sg-notice{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;line-height:18px}',
       '.sg-notice.is-error{color:var(--dsw-alias-state-error-primary)}',
       '.sg-notice.is-ok{color:var(--dsw-alias-state-success-primary)}',
-      '.sg-foot{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
-      '.sg-empty{padding:16px;border:0.5px dashed var(--dsw-alias-border-l2);border-radius:10px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
+      '.sg-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}',
+      '.sg-card{display:flex;flex-direction:column;gap:12px;padding:12px 14px;border:0.5px solid var(--dsw-alias-settings-card-stroke,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-xl,20px);background:var(--dsw-alias-settings-card-fill,var(--dsw-alias-bg-layer-1))}',
+      '.sg-card.is-active{border-color:var(--dsw-alias-brand-primary)}',
+      '.sg-card.is-editing{border-color:transparent;background:var(--dsw-alias-bg-module-platform,var(--dsw-alias-bg-layer-2))}',
+      '.sg-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px}',
+      '.sg-identity{display:inline-flex;align-items:center;gap:6px;min-width:0}',
+      '.sg-name{font-size:14px;line-height:22px;font-weight:500;overflow-wrap:anywhere}',
+      '.sg-tag{flex:none;padding:1px 6px;border:0.5px solid var(--dsw-alias-border-l3,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-xs,4px);font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary);white-space:nowrap}',
+      '.sg-tag.is-active{color:var(--dsw-alias-brand-primary);border-color:var(--dsw-alias-brand-primary)}',
+      '.sg-sub{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;min-width:0}',
+      '.sg-key{display:inline-flex;align-items:center;gap:6px;flex:none;margin-left:auto;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);white-space:nowrap}',
+      '.sg-dot{width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-state-idle-primary);flex:none}',
+      '.sg-key.is-set .sg-dot{background:var(--dsw-alias-state-success-primary)}',
+      '.sg-key.is-missing .sg-dot{background:var(--dsw-alias-state-error-primary)}',
+      '.sg-meta{flex:1 1 auto;min-width:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      '.sg-actions{display:inline-flex;align-items:center;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}',
+      '.sg-btn{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;padding:0 10px;border:0.5px solid var(--dsw-alias-border-l3,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-sm,8px);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:12px;line-height:18px;cursor:pointer;white-space:nowrap}',
+      '.sg-btn:disabled{opacity:.4;cursor:default}',
+      '.sg-btn:focus-visible{outline:2px solid transparent;outline-offset:2px;box-shadow:0 0 0 2px var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary,var(--dsw-alias-brand-primary)))}',
+      '@media (hover:hover){.sg-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,var(--dsw-alias-bg-layer-2))}}',
+      '.sg-btn.is-danger{border-color:transparent;color:var(--dsw-alias-state-error-primary)}',
+      '@media (hover:hover){.sg-btn.is-danger:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-danger,var(--dsw-alias-bg-layer-2))}}',
+      '.sg-btn.is-link{align-self:flex-start;padding:0 6px;border-color:transparent;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
+      '@media (hover:hover){.sg-btn.is-link:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,var(--dsw-alias-bg-layer-2));color:var(--dsw-alias-label-primary)}}',
+      '.sg-btn.is-filled{height:36px;padding:0 14px;border:none;border-radius:var(--dsw-radius-md,12px);background:var(--dsw-alias-button-primary-fill,var(--dsw-alias-brand-primary));color:var(--dsw-alias-label-primary-foreground,#fff);font-size:14px;line-height:22px}',
+      '@media (hover:hover){.sg-btn.is-filled:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover,var(--dsw-alias-brand-primary))}}',
+      '.sg-btn.is-wide{height:36px;padding:0 14px;border-radius:var(--dsw-radius-md,12px);font-size:14px;line-height:22px}',
+      '.sg-add{display:flex}',
+      '.sg-btn.is-add{flex:1 1 0;min-width:180px;height:44px;border:1px dashed var(--dsw-alias-border-l3,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-lg,16px);font-size:14px;line-height:22px}',
+      '.sg-editor{display:flex;flex-direction:column;gap:16px}',
+      '.sg-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}',
+      '.sg-field{display:flex;flex-direction:column;gap:8px;min-width:0}',
+      '.sg-field.is-wide{grid-column:1/-1}',
+      '.sg-label{font-size:12px;line-height:18px;font-weight:500;color:var(--dsw-alias-label-secondary)}',
+      '.sg-input{box-sizing:border-box;width:100%;height:32px;padding:0 10px;border:0.5px solid var(--dsw-alias-border-l4,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-md,12px);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:22px}',
+      '.sg-input:focus{outline:none;border-color:var(--dsw-alias-state-business-primary,var(--dsw-alias-brand-primary))}',
+      '.sg-input::placeholder{color:var(--dsw-alias-label-dimmed,var(--dsw-alias-label-secondary))}',
+      '.sg-input:disabled{opacity:.6;cursor:default}',
+      '.sg-input[aria-invalid="true"]{border-color:var(--dsw-alias-state-error-primary)}',
+      '.sg-hint{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
+      '.sg-editor-actions{display:flex;justify-content:flex-end;gap:8px}',
+      '.sg-confirm{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;font-size:12px;line-height:18px}',
+      '.sg-confirm-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
+      '.sg-confirm-note{color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
+      '.sg-panel{display:flex;flex-direction:column;gap:16px;padding:14px 16px;border:0.5px solid var(--dsw-alias-settings-card-stroke,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-xl,20px);background:var(--dsw-alias-settings-card-fill,var(--dsw-alias-bg-layer-1))}',
+      '.sg-group-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}',
+      '.sg-group-title{margin:0;font-size:14px;line-height:22px;font-weight:500}',
+      '.sg-empty{margin:12px 0 0;padding:20px 16px;font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary));text-align:center}',
+      '.sg-foot{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
     ].join('');
 
     let host = null;
@@ -184,6 +223,29 @@ window.__ModuleLoader__.load({
      */
     function format(template, values) {
       return String(template).replace(/\{(\w+)\}/g, (match, key) => values[key] ?? match);
+    }
+
+    /**
+     * The 14px plus mark on the add row.
+     *
+     * Drawn here rather than imported: the Client half may not load Harness
+     * Client packages, so a shipped icon primitive is not available.
+     * @returns {any} the icon element.
+     */
+    function plusIcon() {
+      return h('svg', {
+        width: 14,
+        height: 14,
+        viewBox: '0 0 14 14',
+        'aria-hidden': 'true',
+        focusable: 'false',
+      }, h('path', {
+        d: 'M7 2.5v9M2.5 7h9',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.4,
+        strokeLinecap: 'round',
+      }));
     }
 
     /**
@@ -278,6 +340,31 @@ window.__ModuleLoader__.load({
       const [draftError, setDraftError] = React.useState(undefined);
       const [sizeDraft, setSizeDraft] = React.useState(resolvedSize);
       const [timeoutDraft, setTimeoutDraft] = React.useState(String(resolvedTimeout));
+      const [sizeError, setSizeError] = React.useState(null);
+      const [timeoutError, setTimeoutError] = React.useState(null);
+      const [defaultsNotice, setDefaultsNotice] = React.useState(null);
+      // Focus returns to the control that opened a form once that form closes:
+      // otherwise the focused button unmounts and focus falls back to <body>.
+      const editButtons = React.useRef(new Map());
+      const addButton = React.useRef(null);
+      const clearKeyButton = React.useRef(null);
+      const keyInput = React.useRef(null);
+      const pendingFocus = React.useRef(null);
+
+      React.useEffect(() => {
+        const target = pendingFocus.current;
+        if (target === null) return;
+        const element = target === 'add' ? addButton.current
+          : target === 'keyInput' ? keyInput.current
+            : target === 'clearKey' ? clearKeyButton.current
+              : editButtons.current.get(target);
+        // A control takes focus only once it exists and is enabled. The save
+        // path clears `busy` after the editor has already closed, so the retry
+        // keyed on `busy` is what actually lands that focus.
+        if (element === undefined || element === null || element.disabled === true) return;
+        pendingFocus.current = null;
+        element.focus();
+      }, [editing, confirmingId, keyConfirm, busy]);
 
       React.useEffect(() => { setSizeDraft(resolvedSize); }, [resolvedSize]);
       React.useEffect(() => { setTimeoutDraft(String(resolvedTimeout)); }, [resolvedTimeout]);
@@ -293,25 +380,32 @@ window.__ModuleLoader__.load({
        * Apply config path operations and report the outcome.
        * @param {Array<object>} ops ordered path edits.
        * @param {string} successMessage message shown on acceptance.
+       * @param {(notice: {kind: string, text: string}) => void} [report] when
+       * given, the outcome goes here instead of the page-level notice, so a
+       * control far below the top reports beside itself.
        * @returns {Promise<boolean>} whether the Host accepted the change.
        */
-      async function commit(ops, successMessage) {
+      async function commit(ops, successMessage, report) {
+        const fail = text => {
+          if (report === undefined) setNotice({ kind: 'error', text });
+          else report({ kind: 'error', text });
+          return false;
+        };
         try {
           const accepted = await host.form.mutate(ops);
-          if (!accepted) {
-            setNotice({ kind: 'error', text: t('rejected') });
-            return false;
-          }
-          setNotice({ kind: 'ok', text: successMessage });
+          if (!accepted) return fail(t('rejected'));
+          const done = { kind: 'ok', text: successMessage };
+          if (report === undefined) setNotice(done);
+          else report(done);
           return true;
         } catch (error) {
-          setNotice({ kind: 'error', text: `${t('saveFailed')} ${error?.message ?? ''}`.trim() });
-          return false;
+          return fail(`${t('saveFailed')} ${error?.message ?? ''}`.trim());
         }
       }
 
       /** Open the editor for one saved account. */
       function startEdit(profile) {
+        pendingFocus.current = null;
         setNotice(null);
         setConfirmingId(null);
         setKeyConfirm(false);
@@ -333,6 +427,7 @@ window.__ModuleLoader__.load({
       function startAdd() {
         const template = profiles[0];
         const stamp = Date.now().toString(36);
+        pendingFocus.current = null;
         setNotice(null);
         setConfirmingId(null);
         setKeyConfirm(false);
@@ -402,11 +497,13 @@ window.__ModuleLoader__.load({
               await host.ctx.remote.credentials.set(draft.apiKeyEnv, key);
             } catch (error) {
               setNotice({ kind: 'error', text: `${t('keySaveFailed')} ${error?.message ?? ''}`.trim() });
+              pendingFocus.current = draft.id;
               setEditing(null);
               await presence.refresh();
               return;
             }
           }
+          pendingFocus.current = draft.id;
           setEditing(null);
           await presence.refresh();
         } catch (error) {
@@ -437,6 +534,10 @@ window.__ModuleLoader__.load({
               setNotice({ kind: 'error', text: t('keyCleanupFailed') });
             }
           }
+          // Land focus on a neighbour's editor entry rather than <body>: the
+          // confirmation button is unmounted by this update.
+          const neighbour = profiles[index + 1] ?? profiles[index - 1];
+          pendingFocus.current = neighbour === undefined ? 'add' : neighbour.id;
           setConfirmingId(null);
           await presence.refresh();
         } catch (error) {
@@ -452,6 +553,9 @@ window.__ModuleLoader__.load({
         setNotice(null);
         setBusy('active');
         try {
+          // The row's "use" button disappears once this account is active, so
+          // focus moves to the row's edit entry.
+          pendingFocus.current = profile.id;
           await commit([{ op: 'set', path: ['activeProfileId'], value: profile.id }], format(t('nowUsing'), { name: profile.name ?? profile.id }));
         } finally {
           setBusy(null);
@@ -465,6 +569,7 @@ window.__ModuleLoader__.load({
         try {
           await host.ctx.remote.credentials.unset(ref);
           setNotice({ kind: 'ok', text: t('keyCleared') });
+          pendingFocus.current = 'keyInput';
           setKeyConfirm(false);
           await presence.refresh();
         } catch (error) {
@@ -477,31 +582,45 @@ window.__ModuleLoader__.load({
       /** Persist the default size when the field is left. */
       async function commitSize() {
         const next = sizeDraft.trim();
+        setSizeError(null);
+        setDefaultsNotice(null);
         if (next === resolvedSize) return;
         if (!/^\d{2,5}x\d{2,5}$/i.test(next)) {
-          setNotice({ kind: 'error', text: t('invalidSize') });
-          setSizeDraft(resolvedSize);
+          // The invalid text stays in the field: reverting it would leave the
+          // format error pointing at a value that is already correct.
+          setSizeError(t('invalidSize'));
           return;
         }
-        await commit([{ op: 'set', path: ['defaultSize'], value: next }], t('saved'));
+        await commit([{ op: 'set', path: ['defaultSize'], value: next }], t('saved'), setDefaultsNotice);
       }
 
       /** Persist the request timeout when the field is left. */
       async function commitTimeout() {
         const seconds = Number.parseInt(timeoutDraft, 10);
+        setTimeoutError(null);
+        setDefaultsNotice(null);
         if (seconds === resolvedTimeout) return;
         if (!Number.isFinite(seconds) || seconds < 5 || seconds > 900) {
-          setNotice({ kind: 'error', text: t('invalidTimeout') });
-          setTimeoutDraft(String(resolvedTimeout));
+          setTimeoutError(t('invalidTimeout'));
           return;
         }
-        await commit([{ op: 'set', path: ['timeoutMs'], value: seconds * 1000 }], t('saved'));
+        await commit([{ op: 'set', path: ['timeoutMs'], value: seconds * 1000 }], t('saved'), setDefaultsNotice);
       }
 
-      /** Render one labelled text field. */
-      function textField(id, label, valueText, onChange, extra) {
-        return h('label', { className: 'sg-field', htmlFor: id, key: id },
-          h('span', { className: 'sg-field-label' }, label),
+      /**
+       * Render one labelled text field.
+       * @param {string} id input id; also the wrapper key.
+       * @param {string} label visible label text.
+       * @param {string} valueText current value.
+       * @param {(next: string) => void} onChange value writer.
+       * @param {any} [extra] `wide` marks a full-row field; anything else is
+       * passed to the input element.
+       * @returns {any} the field element.
+       */
+      function textField(id, label, valueText, onChange, extra = {}) {
+        const { wide, ...inputProps } = extra;
+        return h('label', { className: `sg-field${wide === true ? ' is-wide' : ''}`, htmlFor: id, key: id },
+          h('span', { className: 'sg-label' }, label),
           h('input', {
             id,
             className: 'sg-input',
@@ -511,7 +630,7 @@ window.__ModuleLoader__.load({
             autoComplete: 'off',
             disabled: !writable || busy !== null,
             onChange: event => { onChange(event.target.value); },
-            ...extra ?? {},
+            ...inputProps,
           }));
       }
 
@@ -523,99 +642,120 @@ window.__ModuleLoader__.load({
           setEditing(current => current === null ? current : { ...current, draft: { ...current.draft, ...patch } });
         };
         const fieldInvalid = field => draftError !== undefined && draftError.field === field;
-        const keyKnown = !presence.loading && !presence.failed;
-        const hasKey = keyKnown && presence.entries[draft.apiKeyEnv]?.configured === true;
+        const describedBy = field => (fieldInvalid(field) ? 'sg-draft-error' : undefined);
+        // Read this account's own entry first: a page-wide refresh must not
+        // relabel a known credential, nor hide its clear control for a beat.
+        const describedKey = typeof draft.apiKeyEnv === 'string' && draft.apiKeyEnv.length > 0
+          ? presence.entries[draft.apiKeyEnv]
+          : undefined;
+        const keyKnown = describedKey !== undefined;
+        const hasKey = describedKey?.configured === true;
         return h('div', { className: 'sg-editor' },
           h('div', { className: 'sg-fields' },
-            textField('sg-e-name', t('name'), draft.name, next => { update({ name: next }); }, { autoFocus: true, 'aria-invalid': fieldInvalid('name') ? 'true' : undefined }),
-            textField('sg-e-model', t('model'), draft.model, next => { update({ model: next }); }, { 'aria-invalid': fieldInvalid('model') ? 'true' : undefined }),
-            textField('sg-e-url', t('baseUrl'), draft.baseUrl, next => { update({ baseUrl: next }); }, { 'aria-invalid': fieldInvalid('baseUrl') ? 'true' : undefined }),
-            h('div', { className: 'sg-field', key: 'sg-e-key' },
-              h('label', { className: 'sg-field-label', htmlFor: 'sg-e-key' }, t('apiKey')),
+            textField('sg-e-name', t('name'), draft.name, next => { update({ name: next }); }, {
+              autoFocus: true,
+              'aria-invalid': fieldInvalid('name') ? 'true' : undefined,
+              'aria-describedby': describedBy('name'),
+            }),
+            textField('sg-e-model', t('model'), draft.model, next => { update({ model: next }); }, {
+              'aria-invalid': fieldInvalid('model') ? 'true' : undefined,
+              'aria-describedby': describedBy('model'),
+            }),
+            textField('sg-e-url', t('baseUrl'), draft.baseUrl, next => { update({ baseUrl: next }); }, {
+              wide: true,
+              'aria-invalid': fieldInvalid('baseUrl') ? 'true' : undefined,
+              'aria-describedby': describedBy('baseUrl'),
+            }),
+            h('div', { className: 'sg-field is-wide', key: 'sg-e-key' },
+              h('label', { className: 'sg-label', htmlFor: 'sg-e-key' }, t('apiKey')),
               h('input', {
                 id: 'sg-e-key',
                 className: 'sg-input',
+                ref: keyInput,
                 type: 'password',
                 value: draft.apiKey,
                 autoComplete: 'off',
                 spellCheck: false,
                 disabled: !writable || busy !== null,
                 'aria-invalid': fieldInvalid('key') ? 'true' : undefined,
-                placeholder: !keyKnown ? t('keyUnknown') : hasKey ? t('apiKeySetPlaceholder') : t('apiKeyEmptyPlaceholder'),
+                'aria-describedby': describedBy('key'),
+                placeholder: !keyKnown
+                  ? (presence.failed ? t('keyStatusUnknown') : t('keyUnknown'))
+                  : hasKey ? t('apiKeySetPlaceholder') : t('apiKeyEmptyPlaceholder'),
                 onChange: event => { update({ apiKey: event.target.value }); },
               }),
-              keyKnown && hasKey
+              hasKey
                 ? (keyConfirm
                   ? h('div', { className: 'sg-confirm' },
                     h('span', { className: 'sg-confirm-text' }, t('clearKeyConfirm')),
                     h('div', { className: 'sg-actions' },
-                      h('button', { type: 'button', className: 'sg-btn', autoFocus: true, disabled: busy !== null, onClick: () => { setKeyConfirm(false); } }, t('cancel')),
+                      h('button', { type: 'button', className: 'sg-btn', autoFocus: true, disabled: busy !== null, onClick: () => { pendingFocus.current = 'clearKey'; setKeyConfirm(false); } }, t('cancel')),
                       h('button', { type: 'button', className: 'sg-btn is-danger', disabled: busy !== null, onClick: () => { void clearKey(draft.apiKeyEnv); } }, t('clearKeyYes'))))
                   : h('button', {
                     type: 'button',
-                    className: 'sg-btn is-danger',
+                    className: 'sg-btn is-link',
+                    ref: clearKeyButton,
                     disabled: !writable || busy !== null,
                     onClick: () => { setKeyConfirm(true); },
                   }, t('clearKey')))
                 : null)),
           draftError !== undefined
-            ? h('div', { className: 'sg-notice is-error', role: 'alert' }, draftError.message)
+            ? h('div', { className: 'sg-notice is-error', role: 'alert', id: 'sg-draft-error' }, draftError.message)
             : null,
           h('div', { className: 'sg-editor-actions' },
-            h('button', { type: 'button', className: 'sg-btn', disabled: busy !== null, onClick: () => { setEditing(null); setDraftError(undefined); setKeyConfirm(false); } }, t('cancel')),
             h('button', {
               type: 'button',
-              className: 'sg-btn is-primary',
+              className: 'sg-btn is-wide',
+              disabled: busy !== null,
+              onClick: () => {
+                pendingFocus.current = editing.isNew ? 'add' : editing.draft.id;
+                setEditing(null);
+                setDraftError(undefined);
+                setKeyConfirm(false);
+              },
+            }, t('cancel')),
+            h('button', {
+              type: 'button',
+              className: 'sg-btn is-filled',
               disabled: !writable || busy !== null,
+              'aria-busy': busy === 'save' ? 'true' : undefined,
               onClick: () => { void saveEditing(); },
             }, busy === 'save' ? t('saving') : t('save'))));
       }
 
-      /** Render one saved account card. */
+      /** Render one saved account row. */
       function renderCard(profile, index) {
+        const displayName = profile.name || profile.id || `#${index + 1}`;
         const isActive = profile.id === activeId;
-        const hasKey = typeof profile.apiKeyEnv === 'string' && profile.apiKeyEnv.length > 0
-          && presence.entries[profile.apiKeyEnv]?.configured === true;
-        const keyClass = presence.loading || presence.failed ? '' : hasKey ? 'is-set' : 'is-missing';
-        const keyLabel = presence.loading || presence.failed ? t('keyUnknown') : hasKey ? t('keySet') : t('keyMissing');
+        const keyRef = typeof profile.apiKeyEnv === 'string' && profile.apiKeyEnv.length > 0 ? profile.apiKeyEnv : undefined;
+        const described = keyRef === undefined ? undefined : presence.entries[keyRef];
+        // A described credential outranks the page-wide loading or failure flag,
+        // so one refresh does not relabel every row as "checking".
+        const keyState = described !== undefined
+          ? (described.configured === true ? 'set' : 'missing')
+          : presence.failed ? 'unknown' : presence.loading ? 'pending' : 'missing';
+        const keyClass = keyState === 'set' ? 'is-set' : keyState === 'missing' ? 'is-missing' : '';
+        const keyLabel = keyState === 'set' ? t('keySet')
+          : keyState === 'missing' ? t('keyMissing')
+            : keyState === 'unknown' ? t('keyStatusUnknown') : t('keyUnknown');
         const editingThis = editing !== null && !editing.isNew && editing.draft.id === profile.id;
         const confirmingThis = confirmingId !== null && confirmingId === profile.id;
         const successor = isActive ? profiles.find((candidate) => candidate.id !== profile.id) : undefined;
         const blocked = !writable || busy !== null || (editing !== null && !editingThis);
-        return h('div', { className: `sg-card${isActive ? ' is-active' : ''}${editingThis ? ' is-editing' : ''}${confirmingThis ? ' is-confirming' : ''}`, key: profile.id ?? index },
-          h('div', { className: 'sg-card-main' },
-            h('div', { className: 'sg-head' },
-              h('span', { className: 'sg-name' }, profile.name || profile.id || `#${index + 1}`),
-              isActive ? h('span', { className: 'sg-badge' }, t('active')) : null,
-              h('span', { className: `sg-key ${keyClass}` },
-                h('span', { className: 'sg-dot' }),
-                keyLabel)),
-            h('div', { className: 'sg-meta' }, `${profile.model ?? DEFAULT_MODEL} · ${profile.baseUrl ?? DEFAULT_BASE_URL}`),
-            profiles.length <= 1 && !editingThis
-              ? h('div', { className: 'sg-hint' }, t('lastAccountHint'))
-              : null),
-          editingThis
-            ? renderEditor()
-            : confirmingThis
-              ? h('div', { className: 'sg-confirm' },
-                h('div', { className: 'sg-confirm-text' },
-                  h('span', null, format(t('confirmDelete'), { name: profile.name ?? profile.id })),
-                  successor !== undefined
-                    ? h('span', { className: 'sg-confirm-note' }, format(t('activeWillMove'), { name: successor.name ?? successor.id }))
-                    : null),
-                h('div', { className: 'sg-actions' },
-                  h('button', { type: 'button', className: 'sg-btn', autoFocus: true, onClick: () => { setConfirmingId(null); } }, t('cancel')),
-                  h('button', {
-                    type: 'button',
-                    className: 'sg-btn is-danger',
-                    disabled: busy !== null,
-                    onClick: () => { void removeAccount(profile.id); },
-                  }, t('confirmYes'))))
+        const meta = `${profile.model ?? DEFAULT_MODEL} · ${profile.baseUrl ?? DEFAULT_BASE_URL}`;
+        return h('li', { className: `sg-card${isActive ? ' is-active' : ''}${editingThis ? ' is-editing' : ''}`, key: profile.id ?? index },
+          h('div', { className: 'sg-head' },
+            h('span', { className: 'sg-identity' },
+              h('span', { className: 'sg-name' }, displayName),
+              isActive ? h('span', { className: 'sg-tag is-active' }, t('active')) : null),
+            editingThis || confirmingThis
+              ? null
               : h('div', { className: 'sg-actions' },
                 !isActive
                   ? h('button', {
                     type: 'button',
-                    className: 'sg-btn is-primary',
+                    className: 'sg-btn',
+                    'aria-label': format(t('useAccount'), { name: displayName }),
                     disabled: blocked,
                     onClick: () => { void useAccount(profile); },
                   }, t('use'))
@@ -623,31 +763,73 @@ window.__ModuleLoader__.load({
                 h('button', {
                   type: 'button',
                   className: 'sg-btn',
+                  ref: element => {
+                    if (element === null) editButtons.current.delete(profile.id);
+                    else editButtons.current.set(profile.id, element);
+                  },
+                  'aria-label': format(t('editAccount'), { name: displayName }),
                   disabled: blocked,
                   onClick: () => { startEdit(profile); },
                 }, t('edit')),
                 h('button', {
                   type: 'button',
                   className: 'sg-btn is-danger',
+                  'aria-label': format(t('deleteAccount'), { name: displayName }),
                   disabled: blocked || profiles.length <= 1,
                   onClick: () => { setEditing(null); setNotice(null); setConfirmingId(profile.id); },
-                }, t('delete'))));
+                }, t('delete')))),
+          h('div', { className: 'sg-sub' },
+            editingThis ? null : h('span', { className: 'sg-meta', title: meta }, meta),
+            h('span', { className: `sg-key ${keyClass}` },
+              h('span', { className: 'sg-dot' }),
+              keyLabel)),
+          profiles.length <= 1 && !editingThis && !confirmingThis
+            ? h('p', { className: 'sg-hint' }, t('lastAccountHint'))
+            : null,
+          editingThis
+            ? renderEditor()
+            : confirmingThis
+              ? h('div', { className: 'sg-confirm' },
+                h('div', { className: 'sg-confirm-text' },
+                  h('span', null, format(t('confirmDelete'), { name: displayName })),
+                  successor !== undefined
+                    ? h('span', { className: 'sg-confirm-note' }, format(t('activeWillMove'), { name: successor.name ?? successor.id }))
+                    : null),
+                h('div', { className: 'sg-actions' },
+                  h('button', {
+                    type: 'button',
+                    className: 'sg-btn',
+                    autoFocus: true,
+                    onClick: () => { pendingFocus.current = profile.id; setConfirmingId(null); },
+                  }, t('cancel')),
+                  h('button', {
+                    type: 'button',
+                    className: 'sg-btn is-danger',
+                    disabled: busy !== null,
+                    onClick: () => { void removeAccount(profile.id); },
+                  }, t('confirmYes'))))
+              : null);
       }
 
       if (snapshot.status === 'unavailable') {
-        return h('div', { className: 'sg-root' }, h('style', null, STYLE), h('div', { className: 'sg-lead-desc' }, t('unavailable')));
+        return h('div', { className: 'sg-section' },
+          h('style', null, STYLE),
+          h('h2', { className: 'sg-title' }, t('title')),
+          h('p', { className: 'sg-intro' }, t('unavailable')));
       }
       if (snapshot.status === 'loading' || snapshot.value === undefined) {
-        return h('div', { className: 'sg-root', role: 'status' }, h('style', null, STYLE), h('div', { className: 'sg-lead-desc' }, t('loading')));
+        return h('div', { className: 'sg-section', role: 'status' },
+          h('style', null, STYLE),
+          h('h2', { className: 'sg-title' }, t('title')),
+          h('p', { className: 'sg-intro' }, t('loading')));
       }
 
       const adding = editing !== null && editing.isNew;
-      return h('div', { className: 'sg-root' },
+      return h('div', { className: 'sg-section' },
         h('style', null, STYLE),
-        h('div', null,
-          h('h2', { className: 'sg-lead-title' }, t('title')),
-          h('div', { className: 'sg-lead-desc' }, t('description')),
-          !writable ? h('div', { className: 'sg-lead-desc' }, t('readOnly')) : null),
+        h('h2', { className: 'sg-title' }, t('title')),
+        h('p', { className: 'sg-intro' }, t('description')),
+        !writable ? h('p', { className: 'sg-note' }, t('readOnly')) : null,
         presence.failed
           ? h('div', { className: 'sg-notice is-error', role: 'alert' },
             h('span', null, t('keyStatusFailed')),
@@ -660,55 +842,76 @@ window.__ModuleLoader__.load({
         notice !== null
           ? h('div', { className: `sg-notice ${notice.kind === 'error' ? 'is-error' : 'is-ok'}`, role: notice.kind === 'error' ? 'alert' : 'status' }, notice.text)
           : null,
-        h('div', { className: 'sg-list' },
-          profiles.map((profile, index) => renderCard(profile, index)),
-          adding
-            ? h('div', { className: 'sg-card is-editing', key: 'sg-new' },
-              h('div', { className: 'sg-head' }, h('span', { className: 'sg-name' }, editing.draft.name)),
-              renderEditor())
-            : null,
-          profiles.length === 0 && !adding
-            ? h('div', { className: 'sg-empty' }, t('emptyAccounts'))
-            : null),
-        h('div', null,
-          h('button', {
-            type: 'button',
-            className: 'sg-btn',
-            disabled: !writable || busy !== null || editing !== null,
-            onClick: () => { startAdd(); },
-          }, t('add'))),
-        h('div', { className: 'sg-global' },
-          h('h3', { className: 'sg-global-title' }, t('requestDefaults')),
+        profiles.length === 0 && !adding
+          ? h('p', { className: 'sg-empty' }, t('emptyAccounts'))
+          : h('ul', { className: 'sg-list' },
+            profiles.map((profile, index) => renderCard(profile, index)),
+            adding
+              ? h('li', { className: 'sg-card is-editing', key: 'sg-new' },
+                h('div', { className: 'sg-head' },
+                  h('span', { className: 'sg-name' }, editing.draft.name)),
+                renderEditor())
+              : null),
+        editing === null
+          ? h('div', { className: 'sg-add' },
+            h('button', {
+              type: 'button',
+              className: 'sg-btn is-add',
+              ref: addButton,
+              disabled: !writable || busy !== null,
+              onClick: () => { startAdd(); },
+            }, plusIcon(), t('add')))
+          : null,
+        h('div', { className: 'sg-panel' },
+          h('div', { className: 'sg-group-head' },
+            h('h3', { className: 'sg-group-title' }, t('requestDefaults')),
+            defaultsNotice === null
+              ? null
+              : h('span', {
+                className: `sg-notice ${defaultsNotice.kind === 'error' ? 'is-error' : 'is-ok'}`,
+                role: defaultsNotice.kind === 'error' ? 'alert' : 'status',
+              }, defaultsNotice.text)),
           h('div', { className: 'sg-fields' },
-            h('label', { className: 'sg-field', htmlFor: 'sg-default-size', key: 'sg-size' },
-              h('span', { className: 'sg-field-label' }, t('defaultSize')),
+            h('div', { className: 'sg-field', key: 'sg-size' },
+              h('label', { className: 'sg-label', htmlFor: 'sg-default-size' }, t('defaultSize')),
               h('input', {
                 id: 'sg-default-size',
                 className: 'sg-input',
                 type: 'text',
                 value: sizeDraft,
                 spellCheck: false,
+                'aria-invalid': sizeError !== null ? 'true' : undefined,
+                'aria-describedby': sizeError !== null ? 'sg-default-size-error sg-default-size-hint' : 'sg-default-size-hint',
                 disabled: !writable || busy !== null,
-                onChange: event => { setSizeDraft(event.target.value); },
+                onChange: event => { setSizeDraft(event.target.value); setSizeError(null); setDefaultsNotice(null); },
                 onBlur: () => { void commitSize(); },
               }),
-              h('span', { className: 'sg-hint' }, t('defaultSizeHint'))),
-            h('label', { className: 'sg-field', htmlFor: 'sg-timeout', key: 'sg-timeout' },
-              h('span', { className: 'sg-field-label' }, t('timeout')),
+              h('p', { className: 'sg-hint', id: 'sg-default-size-hint' }, t('defaultSizeHint')),
+              sizeError !== null
+                ? h('p', { className: 'sg-notice is-error', id: 'sg-default-size-error', role: 'alert' }, sizeError)
+                : null),
+            h('div', { className: 'sg-field', key: 'sg-timeout' },
+              h('label', { className: 'sg-label', htmlFor: 'sg-timeout' }, t('timeout')),
               h('input', {
                 id: 'sg-timeout',
                 className: 'sg-input',
                 type: 'number',
+                inputMode: 'numeric',
                 min: 5,
                 max: 900,
                 step: 1,
                 value: timeoutDraft,
+                'aria-invalid': timeoutError !== null ? 'true' : undefined,
+                'aria-describedby': timeoutError !== null ? 'sg-timeout-error sg-timeout-hint' : 'sg-timeout-hint',
                 disabled: !writable || busy !== null,
-                onChange: event => { setTimeoutDraft(event.target.value); },
+                onChange: event => { setTimeoutDraft(event.target.value); setTimeoutError(null); setDefaultsNotice(null); },
                 onBlur: () => { void commitTimeout(); },
               }),
-              h('span', { className: 'sg-hint' }, t('timeoutHint')))),
-          h('div', { className: 'sg-foot' }, t('toolHint'))));
+              h('p', { className: 'sg-hint', id: 'sg-timeout-hint' }, t('timeoutHint')),
+              timeoutError !== null
+                ? h('p', { className: 'sg-notice is-error', id: 'sg-timeout-error', role: 'alert' }, timeoutError)
+                : null))),
+        h('div', { className: 'sg-foot' }, t('toolHint')));
     }
 
     /** Required client services. */
