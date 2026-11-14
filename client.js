@@ -17,6 +17,7 @@ window.__ModuleLoader__.load({
       description: 'Saved Sensenova image accounts. The agent generates images with the active account through the generate_image tool.',
       active: 'Active',
       keySet: 'API Key set',
+      keySetFromEnv: 'API Key from the environment',
       keyMissing: 'No API Key',
       keyUnknown: 'Checking key…',
       keyStatusUnknown: 'Key status unknown',
@@ -80,6 +81,7 @@ window.__ModuleLoader__.load({
       description: '保存的商汤生图账号。Agent 通过 generate_image 工具使用当前账号生成图片。',
       active: '使用中',
       keySet: '密钥已设置',
+      keySetFromEnv: '密钥来自环境变量',
       keyMissing: '未设置密钥',
       keyUnknown: '正在检查密钥…',
       keyStatusUnknown: '密钥状态未知',
@@ -263,13 +265,43 @@ window.__ModuleLoader__.load({
     }
 
     /**
-     * Read the stored API Key presence for the given credential references.
+     * One reference name the credential seam accepts: `^[A-Za-z_][A-Za-z0-9_]*$`.
+     *
+     * A name outside that grammar makes the Host reject the whole `describe`
+     * batch, which would report every account as unreadable instead of only the
+     * one bad reference, so unusable names never reach the wire.
+     */
+    const CREDENTIAL_REF = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+    /** One remote `describe` batch, matching the Host fan-out bound. */
+    const CREDENTIAL_BATCH = 64;
+
+    /**
+     * Unwrap one Remote result.
+     *
+     * Remote methods on the Client resolve to a result envelope
+     * (`{ ok: true, value }` or `{ ok: false, error }`) rather than the bare
+     * return value or a rejection, so reading the envelope as the value makes
+     * every credential look absent. A reply that is not an envelope is passed
+     * through unchanged.
+     * @param {any} result one Remote reply.
+     * @returns {any} the value the Host returned.
+     * @throws {Error} when the Host refused the call.
+     */
+    function unwrapRemote(result) {
+      if (result === null || typeof result !== 'object' || typeof result.ok !== 'boolean') return result;
+      if (result.ok === true) return result.value;
+      throw new Error(result.error?.message ?? 'the Host refused this call');
+    }
+
+    /**
+     * Read the configured state of the given credential references.
      * @param {any} ctx client context owning the credentials Remote.
      * @param {string[]} refs credential references.
      * @returns {{entries: Record<string, any>, loading: boolean, failed: boolean, refresh: Function}} presence state.
      */
     function useCredentialPresence(ctx, refs) {
-      const joined = refs.filter(ref => typeof ref === 'string' && ref.length > 0).join('\n');
+      const joined = refs.filter(ref => typeof ref === 'string' && CREDENTIAL_REF.test(ref)).join('\n');
       const [state, setState] = React.useState({ entries: {}, loading: true, failed: false });
       const refresh = React.useCallback(async () => {
         const list = joined.length > 0 ? joined.split('\n') : [];
@@ -279,10 +311,16 @@ window.__ModuleLoader__.load({
         }
         setState(current => ({ ...current, loading: true }));
         try {
-          const entries = await ctx.remote.credentials.describe(list);
-          setState({ entries: entries ?? {}, loading: false, failed: false });
+          const entries = {};
+          for (let index = 0; index < list.length; index += CREDENTIAL_BATCH) {
+            const described = unwrapRemote(await ctx.remote.credentials.describe(list.slice(index, index + CREDENTIAL_BATCH)));
+            if (described !== null && typeof described === 'object') Object.assign(entries, described);
+          }
+          setState({ entries, loading: false, failed: false });
         } catch {
-          setState({ entries: {}, loading: false, failed: true });
+          // Keep the last known entries: a failed read must not relabel every
+          // account as unconfigured, and the page reports the failure itself.
+          setState(current => ({ ...current, loading: false, failed: true }));
         }
       }, [ctx, joined]);
       React.useEffect(() => { void refresh(); }, [refresh]);
@@ -494,7 +532,7 @@ window.__ModuleLoader__.load({
           }
           if (key.length > 0) {
             try {
-              await host.ctx.remote.credentials.set(draft.apiKeyEnv, key);
+              unwrapRemote(await host.ctx.remote.credentials.set(draft.apiKeyEnv, key));
             } catch (error) {
               setNotice({ kind: 'error', text: `${t('keySaveFailed')} ${error?.message ?? ''}`.trim() });
               pendingFocus.current = draft.id;
@@ -529,7 +567,7 @@ window.__ModuleLoader__.load({
           if (!accepted) return;
           if (typeof profile.apiKeyEnv === 'string' && profile.apiKeyEnv.length > 0) {
             try {
-              await host.ctx.remote.credentials.unset(profile.apiKeyEnv);
+              unwrapRemote(await host.ctx.remote.credentials.unset(profile.apiKeyEnv));
             } catch {
               setNotice({ kind: 'error', text: t('keyCleanupFailed') });
             }
@@ -567,7 +605,7 @@ window.__ModuleLoader__.load({
         if (busy !== null || typeof ref !== 'string' || ref.length === 0) return;
         setBusy('key');
         try {
-          await host.ctx.remote.credentials.unset(ref);
+          unwrapRemote(await host.ctx.remote.credentials.unset(ref));
           setNotice({ kind: 'ok', text: t('keyCleared') });
           pendingFocus.current = 'keyInput';
           setKeyConfirm(false);
@@ -650,6 +688,10 @@ window.__ModuleLoader__.load({
           : undefined;
         const keyKnown = describedKey !== undefined;
         const hasKey = describedKey?.configured === true;
+        // Clearing removes the stored copy only; a key the environment supplies
+        // would still resolve afterwards, so the control is offered only for a
+        // key this page can actually take away.
+        const hasStoredKey = hasKey && describedKey.source === 'file';
         return h('div', { className: 'sg-editor' },
           h('div', { className: 'sg-fields' },
             textField('sg-e-name', t('name'), draft.name, next => { update({ name: next }); }, {
@@ -684,7 +726,7 @@ window.__ModuleLoader__.load({
                   : hasKey ? t('apiKeySetPlaceholder') : t('apiKeyEmptyPlaceholder'),
                 onChange: event => { update({ apiKey: event.target.value }); },
               }),
-              hasKey
+              hasStoredKey
                 ? (keyConfirm
                   ? h('div', { className: 'sg-confirm' },
                     h('span', { className: 'sg-confirm-text' }, t('clearKeyConfirm')),
@@ -735,7 +777,11 @@ window.__ModuleLoader__.load({
           ? (described.configured === true ? 'set' : 'missing')
           : presence.failed ? 'unknown' : presence.loading ? 'pending' : 'missing';
         const keyClass = keyState === 'set' ? 'is-set' : keyState === 'missing' ? 'is-missing' : '';
-        const keyLabel = keyState === 'set' ? t('keySet')
+        // A key that resolves from the environment (`source: 'env'`) is
+        // configured but not stored here, so it reads differently from one this
+        // page wrote.
+        const keyLabel = keyState === 'set'
+          ? (described.source === 'env' ? t('keySetFromEnv') : t('keySet'))
           : keyState === 'missing' ? t('keyMissing')
             : keyState === 'unknown' ? t('keyStatusUnknown') : t('keyUnknown');
         const editingThis = editing !== null && !editing.isNew && editing.draft.id === profile.id;
