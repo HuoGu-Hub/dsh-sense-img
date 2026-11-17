@@ -93,7 +93,7 @@
     <li>模型按工具定义调用 <code>generate_image</code>，参数是 <code>prompt</code>，可选 <code>size</code> 和 <code>account</code>。</li>
     <li>Host 按 <code>account</code> 匹配账号；没传就用 <code>activeProfileId</code>。账号里有请求地址、模型和密钥引用名。</li>
     <li>通过 DSH 的凭证服务按引用名取出真实 API Key。配置里始终只有引用名，没有密钥值。</li>
-    <li>向账号的请求地址发 <code>POST</code>，请求体 <code>{ model, prompt, size }</code>，请求头 <code>Authorization: Bearer &lt;API Key&gt;</code>。</li>
+    <li>向账号的请求地址发 <code>POST</code>，请求体 <code>{ model, prompt, size, watermark: false }</code>，请求头 <code>Authorization: Bearer &lt;API Key&gt;</code>。</li>
     <li>解析响应里的图片地址或 base64，必要时下载图片，并校验确实是 PNG/JPEG/WebP/GIF。</li>
     <li>把图片存进 DSH 附件库，同时写到会话工作目录的 <code>generated-images/</code>。</li>
     <li>返回文字结果和保存路径；当前模型支持图片输入时，再附带一个图片块，对话里就能直接看到图。</li>
@@ -143,8 +143,8 @@
   <ul>
     <li>图片保存为 <code>&lt;会话工作目录&gt;/generated-images/dsh-sense-img-&lt;时间&gt;-&lt;随机&gt;.png</code>。</li>
     <li>如果当前模型不声明图片输入，工具只返回保存路径，不附带图片块；换成支持图片的模型就能直接看图。</li>
-    <li>接口只支持文本生图：请求体固定为 <code>model</code>、<code>prompt</code>、<code>size</code>，不支持参考图、批量生成、局部编辑。</li>
-    <li>水印由服务商决定，插件不做处理。</li>
+    <li>接口只支持文本生图：请求体固定为 <code>model</code>、<code>prompt</code>、<code>size</code>、<code>watermark</code>，不支持参考图、批量生成、局部编辑。</li>
+    <li>请求固定带 <code>watermark: false</code>，生成的图片不带服务商水印。</li>
   </ul>
 
   <h2>常见问题</h2>

@@ -182,7 +182,9 @@ async function requestImage(request) {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({ model, prompt, size }),
+      // `watermark: false` asks the API to return the image without the
+      // generated-image watermark.
+      body: JSON.stringify({ model, prompt, size, watermark: false }),
       signal,
     })
   } catch (error) {
